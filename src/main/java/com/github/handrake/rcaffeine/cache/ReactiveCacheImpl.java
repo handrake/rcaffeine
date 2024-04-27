@@ -2,8 +2,6 @@ package com.github.handrake.rcaffeine.cache;
 
 import com.github.benmanes.caffeine.cache.AsyncCache;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.Map;
 import java.util.Set;
@@ -15,16 +13,10 @@ import static java.util.Objects.requireNonNull;
 
 class ReactiveCacheImpl<K, V> implements ReactiveCache<K, V> {
     private AsyncCache<K, V> underlying;
-    private Scheduler scheduler = Schedulers.boundedElastic();
 
 
     public ReactiveCacheImpl(AsyncCache<K, V> underlying) {
         this.underlying = underlying;
-    }
-
-    public ReactiveCacheImpl(AsyncCache<K, V> underlying, Executor executor) {
-        this.underlying = underlying;
-        this.scheduler = Schedulers.fromExecutor(executor);
     }
 
     public AsyncCache<K, V> getUnderlying() {
@@ -56,7 +48,6 @@ class ReactiveCacheImpl<K, V> implements ReactiveCache<K, V> {
         return Mono.fromFuture(underlying.get(key, (K k, Executor _executor) ->
                         mappingFunction
                                 .apply(k)
-                                .publishOn(scheduler)
                                 .toFuture()
                 ));
     }

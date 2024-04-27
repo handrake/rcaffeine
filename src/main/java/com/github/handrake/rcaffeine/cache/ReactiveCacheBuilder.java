@@ -6,7 +6,6 @@ import java.util.concurrent.Executor;
 
 public class ReactiveCacheBuilder<K, V> {
     private final Caffeine<K, V> underlying;
-    private Executor executor;
 
 
     public ReactiveCacheBuilder(Caffeine<K, V> underlying) {
@@ -22,8 +21,6 @@ public class ReactiveCacheBuilder<K, V> {
     public ReactiveCacheBuilder<K, V> executor(Executor executor) {
         underlying.executor(executor);
 
-        this.executor = executor;
-
         return this;
     }
 
@@ -34,10 +31,6 @@ public class ReactiveCacheBuilder<K, V> {
     }
 
     public ReactiveCache<K, V> build() {
-        if (executor != null) {
-            return new ReactiveCacheImpl(this.underlying.buildAsync(), executor);
-        } else {
-            return new ReactiveCacheImpl(this.underlying.buildAsync());
-        }
+        return new ReactiveCacheImpl(this.underlying.buildAsync());
     }
 }
